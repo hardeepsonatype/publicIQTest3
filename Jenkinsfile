@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         IQ_SERVER_ID = 'your-iq-server-id'
-        IQ_APPLICATION_ID = 'your-app-id'
+        IQ_APPLICATION_ID = 'publicIQTest3__hardeepsonatype'
     }
 
     stages {
