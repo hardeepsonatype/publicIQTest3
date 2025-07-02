@@ -1,3 +1,6 @@
+// Define a variable to hold the SCM information, accessible across stages.
+def scmVars
+
 pipeline {
     agent any
 
@@ -10,7 +13,9 @@ pipeline {
         stage('Checkout SCM') {
             steps {
                 script {
-                    checkout scm
+                    // The checkout step returns a map of SCM variables, including the branch.
+                    // We store this in the scmVars variable for later use.
+                    scmVars = checkout scm
                 }
             }
         }
@@ -47,19 +52,21 @@ pipeline {
                         // Unstash the files saved from the build stage.
                         unstash 'build-artifacts'
 
+                        // Determine the branch name from the checkout information.
+                        // The GIT_BRANCH variable might be 'origin/main', so we take the last part.
+                        def branchName = scmVars.GIT_BRANCH.split('/').last()
+                        
                         def iqStageName
-                        // This logic works best in a Multibranch Pipeline job.
-                        // In a standard Pipeline job, env.BRANCH_NAME will be null.
-                        if (env.BRANCH_NAME == 'main') {
+                        if (branchName == 'main') {
                             iqStageName = 'build'
-                        } else if (env.BRANCH_NAME == 'develop') {
+                        } else if (branchName == 'develop') {
                             iqStageName = 'develop'
                         } else {
-                            // Default stage for other branches or if branch name is not available.
+                            // Default stage for other branches.
                             iqStageName = 'develop'
                         }
     
-                        echo "Using IQ Stage: ${iqStageName} for branch: ${env.BRANCH_NAME}"
+                        echo "Using IQ Stage: ${iqStageName} for branch: ${branchName}"
     
                         // Now find the JAR file recursively in the current directory.
                         // The '**/' pattern searches in all subdirectories.
@@ -82,3 +89,6 @@ pipeline {
         }
     }
 }
+
+
+
