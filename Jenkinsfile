@@ -61,8 +61,9 @@ pipeline {
     
                         echo "Using IQ Stage: ${iqStageName} for branch: ${env.BRANCH_NAME}"
     
-                        // Now find the JAR file in the current directory.
-                        def jarFile = findFiles(glob: '*.jar')[0].path
+                        // Now find the JAR file recursively in the current directory.
+                        // The '**/' pattern searches in all subdirectories.
+                        def jarFile = findFiles(glob: '**/*.jar')[0].path
                         
                         nexusPolicyEvaluation(
                             iqApplication: env.IQ_APPLICATION_ID,
