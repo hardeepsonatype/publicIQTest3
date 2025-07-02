@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        IQ_APPLICATION_ID = 'Publictestiq2'
+        IQ_APPLICATION_ID = 'publicIQTest3__hardeepsonatype'
     }
 
     stages {
@@ -31,11 +31,23 @@ pipeline {
         stage('Sonatype IQ Scan') {
             steps {
                 script {
+                    def iqStageName
+                    if (env.BRANCH_NAME == 'main') {
+                        iqStageName = 'build'
+                    } else if (env.BRANCH_NAME == 'develop') {
+                        iqStageName = 'develop'
+                    } else {
+                        // Default stage for other branches
+                        iqStageName = 'develop'
+                    }
+
+                    echo "Using IQ Stage: ${iqStageName} for branch: ${env.BRANCH_NAME}"
+
                     def jarFile = findFiles(glob: 'target/*.jar')[0].path
                     
                     nexusPolicyEvaluation(
                         iqApplication: env.IQ_APPLICATION_ID,
-                        iqStage: 'build',
+                        iqStage: iqStageName,
                         scanTargets: jarFile
                     )
                 }
